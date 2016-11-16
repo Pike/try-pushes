@@ -40,7 +40,9 @@ function findAncestor(pushes) {
 function renderLogs() {
     let nodes = [], arcs = [];
     for (let cs of logs.values()) {
-        nodes.push(`"${cs.node}" [ tooltip = "${cs.desc}" label = "${cs.node.slice(0, 12)}" ] ;`);
+        let label = cs.desc.split("\n", 1)[0];
+        if (/try:/.test(label)) label = cs.node.slice(0, 12);
+        nodes.push(`"${cs.node}" [ tooltip = "${cs.desc}" label = "${label}" ] ;`);
         cs.parents
             .filter(parent => logs.has(parent))
             .forEach(function (parent) {
