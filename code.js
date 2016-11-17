@@ -8,11 +8,21 @@ function addProgress(closure) {
     return closure;
 }
 
-function loadUser(user, startdate) {
-    if (!user || !startdate) return;
+function loadPushes(params) {
+    if (!params.has('user') || !(params.has('startdate')||params.has('days'))) {
+        return;
+    }
     let pushesURL = new URL('json-pushes', HG);
-    pushesURL.searchParams.set('user', user);
-    pushesURL.searchParams.set('startdate', startdate);
+    pushesURL.searchParams.set('user', params.get('user'));
+    if (params.has('startdate')) {
+        pushesURL.searchParams.set('startdate', params.get('startdate'));
+    }
+    else {
+        pushesURL.searchParams.set('startdate', `${params.get('days')} days before now`);
+    }
+    if (params.has('enddate')) {
+        pushesURL.searchParams.set('endate', params.get('enddate'));
+    }
     fetch(pushesURL)
         .then(response => response.json())
         .then(addProgress)
@@ -50,10 +60,14 @@ function renderLogs() {
     let nodes = [], arcs = [];
     for (let cs of logs.values()) {
         let label = cs.desc.split("\n", 1)[0];
-        if (/try:/.test(label)) label = cs.node.slice(0, 12);
+        let URL = `URL = "https://hg.mozilla.org/try/rev/${cs.node}"`;
+        if (/try:/.test(label)) {
+            label = cs.node.slice(0, 12);
+            URL = '';
+        }
         label = label.replace(/"/g,'\\"');
         let desc = cs.desc.replace(/"/g,'\\"');
-        nodes.push(`"${cs.node}" [ tooltip = "${desc}" label = "${label}" ] ;`);
+        nodes.push(`"${cs.node}" [ ${URL} tooltip = "${desc}\n\n${cs.node}" label = "${label}" ] ;`);
         cs.parents
             .filter(parent => logs.has(parent))
             .forEach(function (parent) {
@@ -90,4 +104,4 @@ function updateTalosCompare() {
 }
 
 let params = new URL(document.location).searchParams;
-loadUser(params.get('user'), `${params.get('days')} days before now`);
+loadPushes(params);
