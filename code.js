@@ -42,7 +42,9 @@ function renderLogs() {
     for (let cs of logs.values()) {
         let label = cs.desc.split("\n", 1)[0];
         if (/try:/.test(label)) label = cs.node.slice(0, 12);
-        nodes.push(`"${cs.node}" [ tooltip = "${cs.desc}" label = "${label}" ] ;`);
+        label = label.replace(/"/g,'\\"');
+        let desc = cs.desc.replace(/"/g,'\\"');
+        nodes.push(`"${cs.node}" [ tooltip = "${desc}" label = "${label}" ] ;`);
         cs.parents
             .filter(parent => logs.has(parent))
             .forEach(function (parent) {
