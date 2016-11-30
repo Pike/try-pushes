@@ -21,7 +21,7 @@ function loadPushes(params) {
         pushesURL.searchParams.set('startdate', `${params.get('days')} days before now`);
     }
     if (params.has('enddate')) {
-        pushesURL.searchParams.set('endate', params.get('enddate'));
+        pushesURL.searchParams.set('enddate', params.get('enddate'));
     }
     fetch(pushesURL)
         .then(response => response.json())
